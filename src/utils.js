@@ -1,5 +1,39 @@
 const CUT_AMOUNT = 5;
-let alphabet = ['а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ь', 'ы', 'ъ', 'э', 'ю', 'я'];
+let alphabet = [
+  `а`,
+  `б`,
+  `в`,
+  `г`,
+  `д`,
+  `е`,
+  `ё`,
+  `ж`,
+  `з`,
+  `и`,
+  `й`,
+  `к`,
+  `л`,
+  `м`,
+  `н`,
+  `о`,
+  `п`,
+  `р`,
+  `с`,
+  `т`,
+  `у`,
+  `ф`,
+  `х`,
+  `ц`,
+  `ч`,
+  `ш`,
+  `щ`,
+  `ь`,
+  `ы`,
+  `ъ`,
+  `э`,
+  `ю`,
+  `я`
+];
 const range = {
   cut: {
     MIN: 0,
@@ -19,16 +53,16 @@ function shuffleAlphabet() {
   const cutRangeMin = getRandomInt(range.cut.MIN, range.cut.MAX);
   const cutRangeMax = cutRangeMin + CUT_AMOUNT;
 
-  let cut = alphabet.slice(cutRangeMin, cutRangeMax);
-  let start = alphabet.slice(0, cutRangeMin);
-  let end = alphabet.slice(cutRangeMax);
+  const cut = alphabet.slice(cutRangeMin, cutRangeMax);
+  const start = alphabet.slice(0, cutRangeMin);
+  const end = alphabet.slice(cutRangeMax);
 
-  let temp = start.concat(end);
-  let startTemp = temp.slice(range.paste.MIN, range.paste.MAX);
-  let endTemp = temp.slice(range.paste.MAX);
+  const temp = start.concat(end);
+  const startTemp = temp.slice(range.paste.MIN, range.paste.MAX);
+  const endTemp = temp.slice(range.paste.MAX);
 
   alphabet = startTemp.concat(cut).concat(endTemp);
   return alphabet;
 }
 
-export {shuffleAlphabet};
+export default shuffleAlphabet;

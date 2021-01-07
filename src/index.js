@@ -2,124 +2,125 @@ let rootInstance = null;
 
 class OwnReact {
   static createElement(...args) {
-    return [...args];
+    const [name, attrs, childs] = args;
+
+    return {
+      type: name,
+      props: {
+        attrs: attrs ? { ...attrs } : null,
+        children: [...childs].flat()
+      }
+    };
   }
 
-  static render(component, root) {
+  static render(element, root) {
     const prevInstance = rootInstance;
-    const nextInstance = reconcile(root, prevInstance, component);
+    const nextInstance = this.reconcile(root, prevInstance, element);
     rootInstance = nextInstance;
-    console.log(rootInstance, `rootInstance`);
-  }
-}
-
-function updateDomProperties(instanceDom, instanceAttrs, componentAttrs) {
-// Удаляем пропсы
-  Object.keys(instanceAttrs).forEach(name => {
-    instanceDom[name] = null;
-  });
-
-  // Задаём пропсы
-  Object.keys(componentAttrs).forEach(name => {
-    instanceDom[name] = componentAttrs[name];
-  });
-}
-
-function reconcileChildren(instance, component) {
-  const [name, attrs, ...childs] = component;
-  const dom = instance.dom;
-  const childInstances = instance.childInstances;
-  const nextChildElements = [...childs].flat();
-  const newChildInstances = [];
-  const count = Math.max(childInstances.length, nextChildElements.length);
-
-  for (let i = 0; i < count; i++) {
-    const childInstance = childInstances[i];
-    const childElement = nextChildElements[i];
-    const newChildInstance = reconcile(dom, childInstance, childElement);
-
-    newChildInstances.push(newChildInstance);
   }
 
-  return newChildInstances.filter(instance => instance != null);
-}
+  static reconcile(parentDom, instance, element) {
+    let result = null;
 
-function reconcile(parentDom, instance, component) {
-  const [name, attrs, ...childs] = component;
+    if (instance === null) {
+      // Создаём инстанс
+      const newInstance = this.instantiate(element);
 
-  if (instance == null) {
-    // Создаём инстанс
-    const newInstance = instantiate(component);
-    parentDom.appendChild(newInstance.dom);
+      parentDom.appendChild(newInstance.dom);
 
-    return newInstance;
-  } else if (component == null) {
-    // Убираем инстанс
-    parentDom.removeChild(instance.dom);
-    return null;
-  } else if (instance.dom.tagName.toLowerCase() === name) {
-    // Обновляем инстанс
-    let [instanceDom, instanceAttrs, childInstances] = instance.element;
+      result = newInstance;
+    } else if (typeof element === `string`) {
+      if (parentDom.textContent !== element) {
+        const parentDomText = parentDom;
+        parentDomText.textContent = element;
+      }
+    } else if (element == null) {
+      // Убираем инстанс
+      parentDom.removeChild(instance.dom);
 
-    if (instanceAttrs) {
-      updateDomProperties(instanceDom, instanceAttrs, attrs);
+      result = null;
+    } else if (instance.dom.tagName.toLowerCase() === instance.element.type) {
+      // Обновляем инстанс
+
+      Object.defineProperties(instance, {
+        childInstances: {
+          value: this.reconcileChildren(instance, element)
+        },
+        element: {
+          value: element
+        }
+      });
+
+      result = instance;
+    } else {
+      const newInstance = this.instantiate(element);
+
+      parentDom.replaceChild(newInstance.dom, instance.dom);
+
+      result = newInstance;
     }
 
-    instance.childInstances = reconcileChildren(instance, component);
+    return result;
+  }
 
-    instance.element = component;
+  static instantiate(element) {
+    const { type, props } = element;
+    const dom = this.myCreateElement(type, props.attrs, props.children);
+    const childElements = props.children;
+    const childInstances = childElements
+      .map(item => {
+        if (typeof item !== `string`) {
+          return this.instantiate(item);
+        }
+
+        return item;
+      })
+      .filter(item => item !== undefined);
+    const childDoms = childInstances.map(childInstance => childInstance.dom);
+
+    childDoms.forEach(childDom => childDom && dom.appendChild(childDom));
+
+    const instance = { dom, element, childInstances };
 
     return instance;
-  } else {
-    const newInstance = instantiate(component);
-
-    parentDom.replaceChild(newInstance.dom, instance.dom);
-
-    return newInstance;
-  }
-}
-
-function instantiate(element) {
-  const [name, attrs, ...childs] = element;
-
-  const dom = myCreateElement(name, attrs, ...childs);
-  const childElements = [...childs].flat();
-
-  const childInstances = childElements
-    .map(item => {
-      if (typeof item !== `string`) {
-        return instantiate(item);
-      }
-    })
-    .filter(item => item !== undefined);
-  const childDoms = childInstances.map(childInstance => childInstance.dom);
-  childDoms.forEach(childDom => dom.appendChild(childDom));
-
-  const instance = { dom, element, childInstances };
-
-  return instance;
-}
-
-function myCreateElement(name, attrs, ...childs) {
-  const el = document.createElement(name);
-
-  if (attrs) {
-    for (const key in attrs) {
-      if (attrs.hasOwnProperty(key)) {
-        el.setAttribute(key, attrs[key])
-      }
-    }
   }
 
-  [...childs].forEach(item => {
-    if (typeof item === `string`) {
-      const text = document.createTextNode(item);
+  static myCreateElement(name, attrs, childs) {
+    const el = document.createElement(name);
 
-      return el.appendChild(text);
+    if (attrs) {
+      Object.keys(attrs).forEach(key => el.setAttribute(key, attrs[key]));
     }
-  });
 
-  return el;
+    childs.forEach(item => {
+      if (typeof item === `string`) {
+        const text = document.createTextNode(item);
+
+        return el.appendChild(text);
+      }
+
+      return item;
+    });
+
+    return el;
+  }
+
+  static reconcileChildren(instance, element) {
+    const { dom, childInstances } = instance;
+    const nextChildElements = element.props.children;
+    const newChildInstances = [];
+    const count = Math.max(childInstances.length, nextChildElements.length);
+
+    for (let i = 0; i < count; i += 1) {
+      const childInstance = childInstances[i];
+      const childElement = nextChildElements[i];
+      const newChildInstance = this.reconcile(dom, childInstance, childElement);
+
+      newChildInstances.push(newChildInstance);
+    }
+
+    return newChildInstances.filter(item => item != null);
+  }
 }
 
 export default OwnReact;
