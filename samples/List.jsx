@@ -1,6 +1,5 @@
 import OwnReact from "../src";
-import ListItem from "./ListItem";
 
-const List = alphabet => <div>{alphabet.map(ListItem)}</div>;
+const List = ({ children }) => <div>{children}</div>;
 
 export default List;

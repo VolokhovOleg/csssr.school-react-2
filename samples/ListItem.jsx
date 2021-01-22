@@ -1,5 +1,5 @@
 import OwnReact from "../src";
 
-const ListItem = item => <div>{item}</div>;
+const ListItem = ({ children }) => <div>{children}</div>;
 
 export default ListItem;
