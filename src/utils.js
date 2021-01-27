@@ -49,6 +49,13 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
+function shuffleByUser(string) {
+  const stringByUser = string.replace(/([^а-яё])/gi, "").toLowerCase();
+  alphabet = [...stringByUser, ...alphabet];
+  alphabet = [...new Set(alphabet)];
+  return alphabet;
+}
+
 function shuffleAlphabet() {
   const cutRangeMin = getRandomInt(range.cut.MIN, range.cut.MAX);
   const cutRangeMax = cutRangeMin + CUT_AMOUNT;
@@ -65,4 +72,4 @@ function shuffleAlphabet() {
   return alphabet;
 }
 
-export default shuffleAlphabet;
+export { shuffleAlphabet, shuffleByUser };

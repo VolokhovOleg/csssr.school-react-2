@@ -1,10 +1,10 @@
 import OwnReact from "../src";
 import Component from "../src/Component";
-import shuffleAlphabet from "../src/utils";
+import { shuffleAlphabet, shuffleByUser } from "../src/utils";
 import List from "./List";
 import ListItem from "./ListItem";
-
-const TICK_TIME_OUT = 5000;
+import Button from "./Button";
+import Input from "./Input";
 
 class App extends Component {
   constructor(props) {
@@ -14,7 +14,12 @@ class App extends Component {
     };
   }
 
-  tick() {
+  onChangeHandler(string) {
+    const alphabet = shuffleByUser(string);
+    this.setState({ alphabet });
+  }
+
+  shuffle() {
     const alphabet = shuffleAlphabet();
     this.setState({ alphabet });
   }
@@ -22,15 +27,15 @@ class App extends Component {
   render() {
     const { alphabet } = this.state;
 
-    setTimeout(() => {
-      this.tick();
-    }, TICK_TIME_OUT);
-
     return (
       <List>
         {alphabet.map(item => (
           <ListItem>{item}</ListItem>
         ))}
+        {/* eslint-disable-next-line react/jsx-no-bind */}
+        <Input handler={this.onChangeHandler.bind(this)} />
+        {/* eslint-disable-next-line react/jsx-no-bind */}
+        <Button handler={this.shuffle.bind(this)} />
       </List>
     );
   }

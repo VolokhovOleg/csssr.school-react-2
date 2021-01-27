@@ -1,5 +1,7 @@
 function updateDomProperties(dom, prevProps, nextProps) {
-  const isEvent = name => name.startsWith(`on`);
+  const isEvent = name => {
+    return name.startsWith(`on`);
+  };
   const isAttribute = name => !isEvent(name) && name !== `children`;
   const DOM = dom;
 

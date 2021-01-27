@@ -3,11 +3,6 @@ import reconcile from "./reconcile";
 let rootInstance = null;
 
 class OwnReact {
-  constructor(props) {
-    this.props = props;
-    this.state = this.state || {};
-  }
-
   static createElement(type, props, ...childs) {
     let element = {
       type,
