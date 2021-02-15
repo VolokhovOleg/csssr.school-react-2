@@ -12,7 +12,6 @@ function instantiate(element) {
       : document.createElement(type);
 
     updateDomProperties(dom, [], props);
-
     const childElements = props.children || [];
     const childInstances = childElements.map(instantiate);
     const childDoms = childInstances.map(childInstance => childInstance.dom);
