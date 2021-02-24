@@ -4,19 +4,16 @@ import reconcileChildren from "./reconcile-children";
 import updateDomProperties from "./update-dom-properties";
 
 function reconcile(parentDom, instance, element) {
-  let newInstance;
-
   if (instance === null) {
     // Создаём инстанс
-    newInstance = instantiate(element);
+    const newInstance = instantiate(element);
     parentDom.appendChild(newInstance.dom);
     return newInstance;
   }
   if (element === null) {
     // Убираем инстанс
     parentDom.removeChild(instance.dom);
-    newInstance = null;
-    return newInstance;
+    return null;
   }
   if (
     (instance.element.type &&
@@ -26,23 +23,21 @@ function reconcile(parentDom, instance, element) {
   ) {
     // Обновляем инстанс DOM-элемента
     updateDomProperties(instance.dom, instance.element.props, element.props);
-    newInstance = { ...instance };
-    newInstance.childInstances = reconcileChildren(instance, element); // eslint-disable-line no-use-before-define
-    newInstance.element = element;
-    return newInstance;
+    /* eslint-disable no-param-reassign */
+    instance.childInstances = reconcileChildren(instance, element); // eslint-disable-line no-use-before-define
+    instance.element = element;
+    return instance;
   }
-
   // Обновляем инстанс компонента
-  newInstance = { ...instance };
-  newInstance.publicInstance.props = element.props;
-  const childElement = newInstance.publicInstance.render();
-  const oldChildInstance = newInstance.childInstance;
+  instance.publicInstance.props = element.props;
+  const childElement = instance.publicInstance.render();
+  const oldChildInstance = instance.childInstance;
   const childInstance = reconcile(parentDom, oldChildInstance, childElement);
-  newInstance.dom = childInstance.dom;
-  newInstance.childInstance = childInstance;
-  newInstance.element = element;
+  instance.dom = childInstance.dom;
+  instance.childInstance = childInstance;
+  instance.element = element;
 
-  return newInstance;
+  return instance;
 }
 
 export default reconcile;
