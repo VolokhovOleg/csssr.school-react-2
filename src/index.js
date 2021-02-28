@@ -1,4 +1,7 @@
 import reconcile from "./reconcile";
+import componentPerformance from "./component-perfomance";
+
+componentPerformance.startTracking();
 
 let rootInstance = null;
 
@@ -30,9 +33,14 @@ class OwnReact {
   }
 
   static render(element, root) {
+    componentPerformance.start(`Render component`);
+
     const prevInstance = rootInstance;
     const nextInstance = reconcile(root, prevInstance, element);
     rootInstance = nextInstance;
+
+    componentPerformance.end(`Render component`);
+    componentPerformance.measure(`Render component`);
   }
 
   static myCreateElement(name, props, childs) {
@@ -55,5 +63,8 @@ class OwnReact {
     return el;
   }
 }
+
+componentPerformance.print();
+componentPerformance.stopTracking();
 
 export default OwnReact;
