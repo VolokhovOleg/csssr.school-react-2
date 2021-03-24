@@ -30,7 +30,7 @@ class App extends Component {
     return (
       <List>
         {alphabet.map(item => (
-          <ListItem>{item}</ListItem>
+          <ListItem letter={item} />
         ))}
         {/* eslint-disable-next-line react/jsx-no-bind */}
         <Input handler={this.onChangeHandler.bind(this)} />

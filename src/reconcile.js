@@ -44,17 +44,19 @@ function reconcile(parentDom, instance, element) {
     return instance;
   }
   // Обновляем инстанс компонента
-  componentPerformance.start(`Обновляем инстанс компонента`);
-  instance.publicInstance.props = element.props;
-  const childElement = instance.publicInstance.render();
-  const oldChildInstance = instance.childInstance;
-  const childInstance = reconcile(parentDom, oldChildInstance, childElement);
-  instance.dom = childInstance.dom;
-  instance.childInstance = childInstance;
-  instance.element = element;
-  componentPerformance.end(`Обновляем инстанс компонента`);
-  componentPerformance.measure(`Обновляем инстанс компонента`);
-  componentPerformance.print();
+  if (instance.publicInstance.shouldComponentUpdate(element.props)) {
+    componentPerformance.start(`Обновляем инстанс компонента`);
+    instance.publicInstance.props = element.props;
+    const childElement = instance.publicInstance.render();
+    const oldChildInstance = instance.childInstance;
+    const childInstance = reconcile(parentDom, oldChildInstance, childElement);
+    instance.dom = childInstance.dom;
+    instance.childInstance = childInstance;
+    instance.element = element;
+    componentPerformance.end(`Обновляем инстанс компонента`);
+    componentPerformance.measure(`Обновляем инстанс компонента`);
+    componentPerformance.print();
+  }
   return instance;
 }
 
