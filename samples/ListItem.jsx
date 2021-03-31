@@ -1,5 +1,11 @@
 import OwnReact from "../src";
+import PureComponent from "../src/PureComponent";
 
-const ListItem = ({ children }) => <div>{children}</div>;
+class ListItem extends PureComponent {
+  render() {
+    const { letter } = this.props;
+    return <div>{letter}</div>;
+  }
+}
 
 export default ListItem;
